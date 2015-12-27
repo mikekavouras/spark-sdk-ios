@@ -56,7 +56,7 @@ extern NSString * _Nonnull const kSparkAPIBaseURL;
  *  @param password   Password
  *  @param completion Completion block will be called when login finished, NSError object will be passed in case of an error, nil if success
  */
--(void)loginWithUser:(NSString *)user
+-(void)loginWithUser:(NSString * _Nonnull)user
             password:(NSString * _Nonnull)password
           completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
 
