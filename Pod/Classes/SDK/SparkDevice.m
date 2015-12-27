@@ -34,27 +34,27 @@
     if (self = [super init])
     {
         self.baseURL = [NSURL URLWithString:kSparkAPIBaseURL];
-     
+
         self.requiresUpdate = NO;
-        
+
         _name = nil;
         if (![params[@"name"] isKindOfClass:[NSNull class]] && params[@"name"])
         {
             _name = params[@"name"];
         }
-        
+
         self.connected = [params[@"connected"] boolValue] == YES;
-        
+
         if (params[@"functions"])
         {
             self.functions = params[@"functions"];
         }
-        
+
         if (params[@"variables"])
         {
             self.variables = params[@"variables"];
         }
-        
+
         _id = params[@"id"];
 
         _type = SparkDeviceTypePhoton;
@@ -73,7 +73,7 @@
             }
         }
 
-        
+
         if (![params[@"last_app"] isKindOfClass:[NSNull class]])
         {
             if (params[@"last_app"])
@@ -95,7 +95,7 @@
                 _lastHeard = [formatter dateFromString:dateString];
             }
         }
-        
+
         /*
          // Inactive for now // TODO: re-enable when we can distinguish devices in the cloud
         if (params[@"cc3000_patch_version"]) // check for other version indication strings - ask doc
@@ -104,20 +104,20 @@
             self.version = (params[@"cc3000_patch_version"]);
         }
          */
-        
+
         if (params[@"device_needs_update"])
         {
             self.requiresUpdate = YES;
         }
-        
+
         self.manager = [[AFHTTPSessionManager alloc] initWithBaseURL:self.baseURL];
         self.manager.responseSerializer = [AFJSONResponseSerializer serializer];
 
         if (!self.manager) return nil;
-        
+
         return self;
     }
-    
+
     return nil;
 }
 
@@ -139,7 +139,7 @@
                     [propNames addObject:propertyName];
                 }
                 free(properties);
-                
+
                 for (NSString *property in propNames)
                 {
                     id value = [updatedDevice valueForKey:property];
@@ -166,15 +166,16 @@
     [self rename:name completion:nil];
 }
 
--(NSURLSessionDataTask *)getVariable:(NSString *)variableName completion:(void(^)(id result, NSError* error))completion
+-(NSURLSessionDataTask *)getVariable:(NSString *)variableName
+        completion:(void(^)(id result, NSError* error))completion
 {
     // TODO: check variable name exists in list
     // TODO: check response of calling a non existant function
-    
+
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@/%@", self.id, variableName]];
-    
+
     [self setAuthHeaderWithAccessToken];
-    
+
     NSURLSessionDataTask *task = [self.manager GET:[url description] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject)
     {
         if (completion)
@@ -198,14 +199,17 @@
             completion(nil,error);
         }
     }];
-    
+
     return task;
 }
 
--(NSURLSessionDataTask *)callFunction:(NSString *)functionName withArguments:(NSArray *)args completion:(void (^)(NSNumber *, NSError *))completion
+-(NSURLSessionDataTask *)callFunction:(NSString *)functionName
+      withArguments:(NSArray *)args
+         completion:(void (^)(NSNumber *, NSError *))completion
 {
     // TODO: check function name exists in list
     // TODO: check response of calling a non existant function
+
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@/%@", self.id, functionName]];
     NSMutableDictionary *params = [NSMutableDictionary new]; //[self defaultParams];
 
@@ -224,12 +228,12 @@
                 completion(nil,err);
             return nil;
         }
-            
+
         params[@"args"] = argsValue;
     }
-    
+
     [self setAuthHeaderWithAccessToken];
-    
+
     NSURLSessionDataTask *task = [self.manager POST:[url description] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject)
     {
         if (completion)
@@ -254,7 +258,7 @@
             completion(nil,error);
         }
     }];
-    
+
     return task;
 }
 
@@ -286,7 +290,7 @@
              completion(error);
          }
     }];
-    
+
     return task;
 }
 
@@ -299,7 +303,7 @@
     params[@"name"] = newName;
     [self setAuthHeaderWithAccessToken];
 
-    
+
     NSURLSessionDataTask *task = [self.manager PUT:[url description] parameters:params success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         _name = newName;
         if (completion)
@@ -312,7 +316,7 @@
              completion(error);
          }
     }];
-    
+
     return task;
 }
 
@@ -338,7 +342,7 @@
 
 -(NSError *)makeErrorWithDescription:(NSString *)desc code:(NSInteger)errorCode
 {
-    
+
     NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
     [errorDetail setValue:desc forKey:NSLocalizedDescriptionKey];
     return [NSError errorWithDomain:@"SparkAPIError" code:errorCode userInfo:errorDetail];
@@ -360,26 +364,28 @@
                       (self.requiresUpdate) ? @"true" : @"false",
                       self.lastApp,
                       self.lastHeard];
-    
+
     return desc;
-    
+
 }
 
 
--(NSURLSessionDataTask *)flashKnownApp:(NSString *)knownAppName completion:(void (^)(NSError *))completion
+-(NSURLSessionDataTask *)flashKnownApp:(NSString *)knownAppName
+          completion:(void (^)(NSError *))completion
 {
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@", self.id]];
-    
+
     NSMutableDictionary *params = [NSMutableDictionary new];
     params[@"app"] = knownAppName;
     [self setAuthHeaderWithAccessToken];
-    
+
     NSURLSessionDataTask *task = [self.manager PUT:[url description] parameters:params success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject)
     {
         NSDictionary *responseDict = responseObject;
         if (responseDict[@"errors"])
         {
-            if (completion) {
+            if (completion)
+            {
                 completion([self makeErrorWithDescription:responseDict[@"errors"][@"error"] code:1005]);
             }
         }
@@ -389,7 +395,7 @@
                 completion(nil);
             }
         }
-        
+
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error)
     {
          if (completion) // TODO: better erroring handling
@@ -397,17 +403,17 @@
              completion(error);
          }
     }];
-    
+
     return task;
 }
 
-
--(NSURLSessionDataTask *)flashFiles:(NSDictionary *)filesDict completion:(void (^)(NSError *))completion // binary
+-(NSURLSessionDataTask *)flashFiles:(NSDictionary *)filesDict
+       completion:(void (^)(NSError *))completion // binary
 {
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@", self.id]];
-    
+
     [self setAuthHeaderWithAccessToken];
-    
+
     NSError *reqError;
     NSMutableURLRequest *request = [self.manager.requestSerializer multipartFormRequestWithMethod:@"PUT" URLString:url.description parameters:@{@"file_type" : @"binary"} constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         // check this:
@@ -416,7 +422,7 @@
             [formData appendPartWithFileData:filesDict[key] name:@"file" fileName:key mimeType:@"application/octet-stream"];
         }
     } error:&reqError];
-    
+
     if (!reqError)
     {
         NSURLSessionDataTask *task = [self.manager dataTaskWithRequest:request completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error)
@@ -446,7 +452,7 @@
                 }
             }
         }];
-        
+
         return task;
     }
     else
@@ -456,11 +462,9 @@
             completion(reqError);
         }
     }
-    
+
     return nil;
 }
-
-
 
 -(void)flashingTimeLeftTimerFunc:(NSTimer *)timer
 {
@@ -494,7 +498,8 @@
 }
 
 
--(id)subscribeToEventsWithPrefix:(NSString *)eventNamePrefix handler:(SparkEventHandler)eventHandler
+-(id)subscribeToEventsWithPrefix:(NSString *)eventNamePrefix
+                         handler:(SparkEventHandler)eventHandler
 {
     return [[SparkCloud sharedInstance] subscribeToDeviceEventsWithPrefix:eventNamePrefix deviceID:self.id handler:eventHandler];
 }
