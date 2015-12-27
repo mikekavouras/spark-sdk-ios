@@ -360,7 +360,7 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 
 
--(void)getDevices:(void (^)(NSArray *sparkDevices, NSError *error))completion
+-(void)getDevices:(void (^)(NSArray<SparkDevice *> *sparkDevices, NSError *error))completion
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
@@ -447,7 +447,7 @@ NSString *const kEventListenersDictIDKey = @"id";
 
 
 
--(void)generateClaimCode:(void(^)(NSString *claimCode, NSArray *userClaimedDeviceIDs, NSError *error))completion;
+-(void)generateClaimCode:(void(^)(NSString *claimCode, NSArray<NSString *> *userClaimedDeviceIDs, NSError *error))completion;
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
@@ -491,7 +491,7 @@ NSString *const kEventListenersDictIDKey = @"id";
 
 
 
--(void)generateClaimCodeForOrganization:(NSString *)orgSlug andProduct:(NSString *)productSlug withActivationCode:(NSString *)activationCode completion:(void(^)(NSString *claimCode, NSArray *userClaimedDeviceIDs, NSError *error))completion;
+-(void)generateClaimCodeForOrganization:(NSString *)orgSlug andProduct:(NSString *)productSlug withActivationCode:(NSString *)activationCode completion:(void(^)(NSString *claimCode, NSArray<NSString *> *userClaimedDeviceIDs, NSError *error))completion;
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
