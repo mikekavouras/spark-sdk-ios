@@ -142,12 +142,16 @@
                 }
             }
             if (completion)
+            {
                 completion(nil);
+            }
         }
         else
         {
             if (completion)
+            {
                 completion(error);
+            }
         }
     }];
 }
@@ -157,7 +161,8 @@
     [self rename:name completion:nil];
 }
 
--(void)getVariable:(NSString *)variableName completion:(void(^)(id result, NSError* error))completion
+-(void)getVariable:(NSString *)variableName
+        completion:(void(^)(id result, NSError* error))completion
 {
     // TODO: check variable name exists in list
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@/%@", self.id, variableName]];
@@ -183,18 +188,23 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          if (completion)
+         {
              completion(nil,error);
+         }
      }];
 
     
 }
 
--(void)callFunction:(NSString *)functionName withArguments:(NSArray *)args completion:(void (^)(NSNumber *, NSError *))completion
+-(void)callFunction:(NSString *)functionName
+      withArguments:(NSArray *)args
+         completion:(void (^)(NSNumber *, NSError *))completion
 {
     // TODO: check function name exists in list
+    // TODO: check response of calling a non existant function
+    
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@/%@", self.id, functionName]];
     NSMutableDictionary *params = [NSMutableDictionary new]; //[self defaultParams];
-    // TODO: check response of calling a non existant function
 
     if (args) {
         NSMutableArray *argsStr = [[NSMutableArray alloc] initWithCapacity:args.count];
@@ -236,7 +246,9 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error)
     {
         if (completion)
+        {
             completion(nil,error);
+        }
     }];
     
 }
@@ -264,7 +276,9 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          if (completion)
+         {
              completion(error);
+         }
      }];
     
 
@@ -289,7 +303,9 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          if (completion) // TODO: better erroring handling
+         {
              completion(error);
+         }
      }];
     
 
@@ -346,7 +362,8 @@
 }
 
 
--(void)flashKnownApp:(NSString *)knownAppName completion:(void (^)(NSError *))completion
+-(void)flashKnownApp:(NSString *)knownAppName
+          completion:(void (^)(NSError *))completion
 {
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@", self.id]];
     
@@ -358,22 +375,27 @@
         NSDictionary *responseDict = responseObject;
         if (responseDict[@"errors"])
         {
-            if (completion) completion([self makeErrorWithDescription:responseDict[@"errors"][@"error"] code:1005]);
+            if (completion)
+            {
+                completion([self makeErrorWithDescription:responseDict[@"errors"][@"error"] code:1005]);
+            }
         }
         else
-            if (completion) completion(nil);
-        
+            if (completion) {
+                completion(nil);
+            }
     } failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         if (completion) // TODO: better erroring handling
+         // TODO: better erroring handling
+         if (completion)
+         {
              completion(error);
+         }
      }];
-    
-    
 }
 
-
--(void)flashFiles:(NSDictionary *)filesDict completion:(void (^)(NSError *))completion // binary
+-(void)flashFiles:(NSDictionary *)filesDict
+       completion:(void (^)(NSError *))completion // binary
 {
     NSURL *url = [self.baseURL URLByAppendingPathComponent:[NSString stringWithFormat:@"v1/devices/%@", self.id]];
     
@@ -418,13 +440,13 @@
     else
     {
         if (completion)
+        {
             completion(reqError);
+        }
     }
     
     
 }
-
-
 
 -(void)flashingTimeLeftTimerFunc:(NSTimer *)timer
 {
@@ -460,7 +482,8 @@
 }
 
 
--(id)subscribeToEventsWithPrefix:(NSString *)eventNamePrefix handler:(SparkEventHandler)eventHandler
+-(id)subscribeToEventsWithPrefix:(NSString *)eventNamePrefix
+                         handler:(SparkEventHandler)eventHandler
 {
     return [[SparkCloud sharedInstance] subscribeToDeviceEventsWithPrefix:eventNamePrefix deviceID:self.id handler:eventHandler];
 }
