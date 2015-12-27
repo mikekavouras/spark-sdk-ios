@@ -21,28 +21,28 @@
 #import "SparkDevice.h"
 #import "SparkEvent.h"
 
-extern NSString *const kSparkAPIBaseURL;
+extern NSString * _Nonnull const kSparkAPIBaseURL;
 
 @interface SparkCloud : NSObject
 
 /**
  *  Currently loggeed in user name, nil if no session exists
  */
-@property (nonatomic, strong, readonly) NSString* loggedInUsername;
+@property (nonatomic, strong, readonly) NSString * _Nullable loggedInUsername;
 @property (nonatomic, readonly) BOOL isLoggedIn;
 /**
  *  Current session access token string
  */
-@property (nonatomic, strong, readonly) NSString *accessToken;
+@property (nonatomic, strong, readonly) NSString * _Nullable accessToken;
 
-@property (nonatomic, strong) NSString *OAuthClientId;
-@property (nonatomic, strong) NSString *OAuthClientSecret;
+@property (nonatomic, strong) NSString * _Nullable OAuthClientId;
+@property (nonatomic, strong) NSString * _Nullable OAuthClientSecret;
 /**
  *  Singleton instance of SparkCloud class
  *
  *  @return SparkCloud
  */
-+ (instancetype)sharedInstance;
++ (instancetype _Nonnull)sharedInstance;
 
 #pragma mark User onboarding functions
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -56,7 +56,9 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param password   Password
  *  @param completion Completion block will be called when login finished, NSError object will be passed in case of an error, nil if success
  */
--(void)loginWithUser:(NSString *)user password:(NSString *)password completion:(void (^)(NSError *error))completion;
+-(void)loginWithUser:(NSString *)user
+            password:(NSString * _Nonnull)password
+          completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
 
 /**
  *  Sign up with new account credentials to Spark cloud
@@ -65,7 +67,9 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param password   Required password
  *  @param completion Completion block will be called when sign-up finished, NSError object will be passed in case of an error, nil if success
  */
--(void)signupWithUser:(NSString *)user password:(NSString *)password completion:(void (^)(NSError *error))completion;
+-(void)signupWithUser:(NSString * _Nonnull)user
+             password:(NSString * _Nonnull)password
+           completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
 
 
 /**
@@ -76,7 +80,10 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param orgSlug    Organization string to include in cloud API endpoint URL
  *  @param completion Completion block will be called when sign-up finished, NSError object will be passed in case of an error, nil if success
  */
--(void)signupWithCustomer:(NSString *)email password:(NSString *)password orgSlug:(NSString *)orgSlug completion:(void (^)(NSError *))completion;
+-(void)signupWithCustomer:(NSString * _Nonnull)email
+                 password:(NSString * _Nonnull)password
+                  orgSlug:(NSString * _Nonnull)orgSlug
+               completion:(void (^ _Nullable)(NSError * _Nullable))completion;
 
 /**
  *  Logout user, remove session data
@@ -90,8 +97,12 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param email      user email
  *  @param completion Completion block with NSError object if failure, nil if success
  */
--(void)requestPasswordResetForCustomer:(NSString *)orgSlug email:(NSString *)email completion:(void(^)(NSError *))completion;
--(void)requestPasswordResetForUser:(NSString *)email completion:(void(^)(NSError *))completion;
+-(void)requestPasswordResetForCustomer:(NSString * _Nonnull)orgSlug
+                                 email:(NSString * _Nonnull)email
+                            completion:(void(^ _Nullable)(NSError * _Nullable))completion;
+
+-(void)requestPasswordResetForUser:(NSString * _Nonnull)email
+                        completion:(void(^ _Nullable)(NSError * _Nullable))completion;
 
 #pragma mark Device management functions
 // --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -104,7 +115,7 @@ extern NSString *const kSparkAPIBaseURL;
  *
  *  @param completion Completion block with the device instances array in case of success or with NSError object if failure
  */
--(void)getDevices:(void (^)(NSArray<SparkDevice *> *sparkDevices, NSError *error))completion;
+-(void)getDevices:(void (^ _Nonnull)(NSArray<SparkDevice *> * _Nullable sparkDevices, NSError * _Nullable error))completion;
 
 /**
  *  Get a specific device instance by its deviceID. If the device is offline the instance will contain only partial information the cloud has cached, 
@@ -113,7 +124,7 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param deviceID   required deviceID
  *  @param completion Completion block with first arguemnt as the device instance in case of success or with second argument NSError object if operation failed
  */
--(void)getDevice:(NSString *)deviceID completion:(void (^)(SparkDevice *, NSError *))completion;
+-(void)getDevice:(NSString * _Nonnull)deviceID completion:(void (^ _Nonnull)(SparkDevice * _Nullable, NSError * _Nullable))completion;
 
 // Not available yet
 //-(void)publishEvent:(NSString *)eventName data:(NSData *)data;
@@ -124,14 +135,14 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param deviceID   required deviceID
  *  @param completion Completion block with NSError object if failure, nil if success
  */
--(void)claimDevice:(NSString *)deviceID completion:(void(^)(NSError *))completion;
+-(void)claimDevice:(NSString * _Nonnull)deviceID completion:(void(^ _Nonnull)(NSError * _Nullable))completion;
 
 /**
  *  Get a short-lived claiming token for transmitting to soon-to-be-claimed device in soft AP setup process
  *
  *  @param completion Completion block with claimCode string returned (48 random bytes base64 encoded to 64 ASCII characters), second argument is a list of the devices currently claimed by current session user and third is NSError object for failure, nil if success
  */
--(void)generateClaimCode:(void(^)(NSString *claimCode, NSArray<NSString *> *userClaimedDeviceIDs, NSError *error))completion;
+-(void)generateClaimCode:(void(^ _Nonnull)(NSString * _Nullable claimCode, NSArray<NSString *> * _Nullable userClaimedDeviceIDs, NSError * _Nullable error))completion;
 
 
 /**
@@ -142,7 +153,10 @@ extern NSString *const kSparkAPIBaseURL;
  *
  *  @param completion Completion block with claimCode string returned (48 random bytes base64 encoded to 64 ASCII characters), second argument is a list of the devices currently claimed by current session user and third is NSError object for failure, nil if success
  */
--(void)generateClaimCodeForOrganization:(NSString *)orgSlug andProduct:(NSString *)productSlug withActivationCode:(NSString *)activationCode completion:(void(^)(NSString *claimCode, NSArray<NSString *> *userClaimedDeviceIDs, NSError *error))completion;
+-(void)generateClaimCodeForOrganization:(NSString * _Nonnull)orgSlug
+                             andProduct:(NSString * _Nonnull)productSlug
+                     withActivationCode:(NSString * _Nullable)activationCode
+                             completion:(void(^ _Nonnull)(NSString * _Nullable claimCode, NSArray<NSString *> * _Nullable userClaimedDeviceIDs, NSError * _Nullable error))completion;
 
 
 #pragma mark Events subsystem functions
@@ -157,7 +171,8 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param eventName    Filter only events that match name eventName, if nil is passed any event will trigger eventHandler
  *  @return eventListenerID function will return an id type object as the eventListener registration unique ID - keep and pass this object to the unsubscribe method in order to remove this event listener
  */
--(id)subscribeToAllEventsWithPrefix:(NSString *)eventNamePrefix handler:(SparkEventHandler)eventHandler;
+-(id _Nullable)subscribeToAllEventsWithPrefix:(NSString * _Nullable)eventNamePrefix
+                            handler:(SparkEventHandler _Nullable)eventHandler;
 /**
  *  Subscribe to all events, public and private, published by devices one owns
  *
@@ -165,7 +180,8 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param eventNamePrefix  Filter only events that match name eventNamePrefix, for exact match pass whole string, if nil/empty string is passed any event will trigger eventHandler
  *  @return eventListenerID function will return an id type object as the eventListener registration unique ID - keep and pass this object to the unsubscribe method in order to remove this event listener
  */
--(id)subscribeToMyDevicesEventsWithPrefix:(NSString *)eventNamePrefix handler:(SparkEventHandler)eventHandler;
+-(id _Nullable)subscribeToMyDevicesEventsWithPrefix:(NSString * _Nullable)eventNamePrefix
+                                  handler:(SparkEventHandler _Nullable)eventHandler;
 
 /**
  *  Subscribe to events from one specific device. If the API user has the device claimed, then she will receive all events, public and private, published by that device. 
@@ -176,14 +192,16 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param eventHandler     Event handler function that accepts the event payload dictionary and an NSError object in case of an error
  *  @return eventListenerID function will return an id type object as the eventListener registration unique ID - keep and pass this object to the unsubscribe method in order to remove this event listener
  */
--(id)subscribeToDeviceEventsWithPrefix:(NSString *)eventNamePrefix deviceID:(NSString *)deviceID handler:(SparkEventHandler)eventHandler;
+-(id _Nullable)subscribeToDeviceEventsWithPrefix:(NSString * _Nullable)eventNamePrefix
+                              deviceID:(NSString * _Nonnull)deviceID
+                               handler:(SparkEventHandler _Nullable)eventHandler;
 
 /**
  *  Unsubscribe from event/events.
  *
  *  @param eventListenerID The eventListener registration unique ID returned by the subscribe method which you want to cancel
  */
--(void)unsubscribeFromEventWithID:(id)eventListenerID;
+-(void)unsubscribeFromEventWithID:(id _Nonnull)eventListenerID;
 
 /**
  *  Subscribe to events from one specific device. If the API user has the device claimed, then she will receive all events, public and private, published by that device.
@@ -195,7 +213,11 @@ extern NSString *const kSparkAPIBaseURL;
  *  @param ttl          TTL stands for Time To Live. It it the number of seconds that the event data is relevant and meaningful. For example, an outdoor temperature reading with a precision of integer degrees Celsius might have a TTL of somewhere between 600 (10 minutes) and 1800 (30 minutes).
  *                      The geolocation of a large piece of farm equipment that remains stationary most of the time but may be moved to a different field once in a while might have a TTL of 86400 (24 hours). After the TTL has passed, the information can be considered stale or out of date.
  */
--(void)publishEventWithName:(NSString *)eventName data:(NSString *)data isPrivate:(BOOL)isPrivate ttl:(NSUInteger)ttl completion:(void (^)(NSError *))completion;
+-(void)publishEventWithName:(NSString * _Nonnull)eventName
+                       data:(NSString * _Nonnull)data
+                  isPrivate:(BOOL)isPrivate
+                        ttl:(NSUInteger)ttl
+                 completion:(void (^ _Nullable)(NSError * _Nullable))completion;
 
 
 @end

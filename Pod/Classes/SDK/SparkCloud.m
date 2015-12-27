@@ -98,7 +98,8 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 
 #pragma mark Delegate functions
--(void)SparkAccessToken:(SparkAccessToken *)accessToken didExpireAt:(NSDate *)date
+-(void)SparkAccessToken:(SparkAccessToken *)accessToken
+            didExpireAt:(NSDate *)date
 {
     // handle auto-renewal of expired access tokens by internal timer event
     // TODO: fix that to do it using a refresh token and not save the user password!
@@ -114,7 +115,9 @@ NSString *const kEventListenersDictIDKey = @"id";
 
 
 #pragma mark SDK public functions
--(void)loginWithUser:(NSString *)user password:(NSString *)password completion:(void (^)(NSError *error))completion
+-(void)loginWithUser:(NSString *)user
+            password:(NSString *)password
+          completion:(void (^)(NSError *))completion
 {
     // non default params
     NSDictionary *params = @{
@@ -153,12 +156,13 @@ NSString *const kEventListenersDictIDKey = @"id";
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // check type of error?
         if (completion)
+        {
             completion([NSError errorWithDomain:error.domain code:operation.response.statusCode userInfo:error.userInfo]);
+        }
 
         NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
         if (errorData)
         {
-
             NSDictionary *serializedFailedBody = [NSJSONSerialization JSONObjectWithData:errorData options:kNilOptions error:nil];
             NSLog(@"! loginWithUser %@ Failed (status code %d): %@",operation.request.URL,(int)operation.response.statusCode,serializedFailedBody);
         }
@@ -167,9 +171,9 @@ NSString *const kEventListenersDictIDKey = @"id";
     [self.manager.requestSerializer clearAuthorizationHeader];
 }
 
-
-
--(void)signupWithUser:(NSString *)user password:(NSString *)password completion:(void (^)(NSError *))completion
+-(void)signupWithUser:(NSString *)user
+             password:(NSString *)password
+           completion:(void (^)(NSError *))completion
 {
     
     // non default params
@@ -199,8 +203,10 @@ NSString *const kEventListenersDictIDKey = @"id";
      } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
          // check type of error?
          if (completion)
+         {
              completion([NSError errorWithDomain:error.domain code:operation.response.statusCode userInfo:error.userInfo]);
-
+         }
+         
          NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
          if (errorData)
          {
@@ -213,7 +219,10 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 
 
--(void)signupWithCustomer:(NSString *)email password:(NSString *)password orgSlug:(NSString *)orgSlug completion:(void (^)(NSError *))completion
+-(void)signupWithCustomer:(NSString *)email
+                 password:(NSString *)password
+                  orgSlug:(NSString *)orgSlug
+               completion:(void (^)(NSError *))completion
 {
     if ((!orgSlug) || ([orgSlug isEqualToString:@""]))
         completion([self makeErrorWithDescription:@"Organization slug must be specified" code:1006]);
@@ -246,7 +255,7 @@ NSString *const kEventListenersDictIDKey = @"id";
          {
              self.token.delegate = self;
              self.user = [[SparkUser alloc] initWithUser:email andPassword:password]; // TODO: fix that to refresh token behaviour
-         }
+        }
          
          if (completion) {
              if (operation.response.statusCode == 201)
@@ -260,9 +269,13 @@ NSString *const kEventListenersDictIDKey = @"id";
              }
          }
      } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-         // check type of error?
+         
+         // TODO: check type of error?
+         
          if (completion)
+         {
              completion([NSError errorWithDomain:error.domain code:operation.response.statusCode userInfo:error.userInfo]);
+         }
          
          NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
          if (errorData)
@@ -276,18 +289,14 @@ NSString *const kEventListenersDictIDKey = @"id";
     [self.manager.requestSerializer clearAuthorizationHeader];
 }
 
-
-
-
-
 -(void)logout
 {
     [self.token removeSession];
     [self.user removeSession];
 }
 
-
--(void)claimDevice:(NSString *)deviceID completion:(void (^)(NSError *))completion
+-(void)claimDevice:(NSString *)deviceID
+        completion:(void (^)(NSError *))completion
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
@@ -320,11 +329,10 @@ NSString *const kEventListenersDictIDKey = @"id";
          }
 
      }];
-    
-
 }
 
--(void)getDevice:(NSString *)deviceID completion:(void (^)(SparkDevice *, NSError *))completion
+-(void)getDevice:(NSString *)deviceID
+      completion:(void (^)(SparkDevice *, NSError *))completion
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
@@ -360,7 +368,7 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 
 
--(void)getDevices:(void (^)(NSArray<SparkDevice *> *sparkDevices, NSError *error))completion
+-(void)getDevices:(void (^)(NSArray<SparkDevice *> *, NSError *))completion
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
@@ -445,9 +453,7 @@ NSString *const kEventListenersDictIDKey = @"id";
      }];
 }
 
-
-
--(void)generateClaimCode:(void(^)(NSString *claimCode, NSArray<NSString *> *userClaimedDeviceIDs, NSError *error))completion;
+-(void)generateClaimCode:(void(^)(NSString * claimCode, NSArray<NSString *> * userClaimedDeviceIDs, NSError * error))completion;
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
@@ -486,12 +492,12 @@ NSString *const kEventListenersDictIDKey = @"id";
              NSLog(@"! generateClaimCode %@ Failed (status code %d): %@",operation.request.URL,(int)operation.response.statusCode,serializedFailedBody);
          }
      }];
-    
 }
 
-
-
--(void)generateClaimCodeForOrganization:(NSString *)orgSlug andProduct:(NSString *)productSlug withActivationCode:(NSString *)activationCode completion:(void(^)(NSString *claimCode, NSArray<NSString *> *userClaimedDeviceIDs, NSError *error))completion;
+-(void)generateClaimCodeForOrganization:(NSString *)orgSlug
+                             andProduct:(NSString *)productSlug
+                     withActivationCode:(NSString *)activationCode
+                             completion:(void(^)(NSString * claimCode, NSArray<NSString *> * userClaimedDeviceIDs, NSError * error))completion;
 {
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
@@ -542,10 +548,9 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 
 
-
-
-//-(void)requestPasswordReset:(NSString *)email completion:(void (^)(NSError *))completion
--(void)requestPasswordResetForCustomer:(NSString *)orgSlug email:(NSString *)email completion:(void (^)(NSError *))completion
+-(void)requestPasswordResetForCustomer:(NSString *)orgSlug
+                                 email:(NSString *)email
+                            completion:(void (^)(NSError *))completion
 {
     NSDictionary *params = @{@"email": email};
     NSString *urlPath = [NSString stringWithFormat:@"/v1/orgs/%@/customers/reset_password",orgSlug];
@@ -568,16 +573,14 @@ NSString *const kEventListenersDictIDKey = @"id";
          NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
          if (errorData)
          {
-
              NSDictionary *serializedFailedBody = [NSJSONSerialization JSONObjectWithData:errorData options:kNilOptions error:nil];
              NSLog(@"! requestPasswordReset %@ Failed (status code %d): %@",operation.request.URL,(int)operation.response.statusCode,serializedFailedBody);
          }
      }];
-    
 }
 
-
--(void)requestPasswordResetForUser:(NSString *)email completion:(void (^)(NSError *))completion
+-(void)requestPasswordResetForUser:(NSString *)email
+                        completion:(void (^)(NSError *))completion
 {
     NSDictionary *params = @{@"email": email};
     NSString *urlPath = [NSString stringWithFormat:@"/v1/user/password-reset"];
@@ -608,13 +611,9 @@ NSString *const kEventListenersDictIDKey = @"id";
     
 }
 
-
-
-
-
-
 #pragma mark Internal use methods
--(void)listTokens:(NSString *)user password:(NSString *)password
+-(void)listTokens:(NSString *)user
+         password:(NSString *)password
 {
     [self.manager.requestSerializer setAuthorizationHeaderFieldWithUsername:user password:password];
     
@@ -641,9 +640,9 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 */
 
--(NSError *)makeErrorWithDescription:(NSString *)desc code:(NSInteger)errorCode
+-(NSError *)makeErrorWithDescription:(NSString *)desc
+                                code:(NSInteger)errorCode
 {
-    
     NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
     [errorDetail setValue:desc forKey:NSLocalizedDescriptionKey];
     return [NSError errorWithDomain:@"SparkAPIError" code:errorCode userInfo:errorDetail];
@@ -652,11 +651,15 @@ NSString *const kEventListenersDictIDKey = @"id";
 
 
 #pragma mark Events subsystem implementation
--(id)subscribeToEventWithURL:(NSURL *)url handler:(SparkEventHandler)eventHandler
+-(id)subscribeToEventWithURL:(NSURL *)url
+                     handler:(SparkEventHandler)eventHandler
 {
     if (!self.accessToken)
     {
-        eventHandler(nil, [self makeErrorWithDescription:@"No active access token" code:1008]);
+        if (eventHandler)
+        {
+            eventHandler(nil, [self makeErrorWithDescription:@"No active access token" code:1008]);
+        }
         return nil;
     }
 
@@ -715,7 +718,6 @@ NSString *const kEventListenersDictIDKey = @"id";
                                                  kEventListenersDictEventSourceKey : source}; // save it in the internal dictionary for future unsubscribing
     
     return eventListenerID;
-    
 }
 
 
@@ -732,7 +734,8 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 
 
--(id)subscribeToAllEventsWithPrefix:(NSString *)eventNamePrefix handler:(SparkEventHandler)eventHandler
+-(id)subscribeToAllEventsWithPrefix:(NSString *)eventNamePrefix
+                            handler:(SparkEventHandler)eventHandler
 {
     // GET /v1/events[/:event_name]
     NSString *endpoint;
@@ -749,7 +752,8 @@ NSString *const kEventListenersDictIDKey = @"id";
 }
 
 
--(id)subscribeToMyDevicesEventsWithPrefix:(NSString *)eventNamePrefix handler:(SparkEventHandler)eventHandler
+-(id)subscribeToMyDevicesEventsWithPrefix:(NSString *)eventNamePrefix
+                                  handler:(SparkEventHandler)eventHandler
 {
     // GET /v1/devices/events[/:event_name]
     NSString *endpoint;
@@ -767,7 +771,9 @@ NSString *const kEventListenersDictIDKey = @"id";
     
 }
 
--(id)subscribeToDeviceEventsWithPrefix:(NSString *)eventNamePrefix deviceID:(NSString *)deviceID handler:(SparkEventHandler)eventHandler
+-(id)subscribeToDeviceEventsWithPrefix:(NSString *)eventNamePrefix
+                              deviceID:(NSString *)deviceID
+                               handler:(SparkEventHandler)eventHandler
 {
     // GET /v1/devices/:device_id/events[/:event_name]
     NSString *endpoint;
@@ -786,19 +792,19 @@ NSString *const kEventListenersDictIDKey = @"id";
 
 
 
--(void)publishEventWithName:(NSString *)eventName data:(NSString *)data isPrivate:(BOOL)isPrivate ttl:(NSUInteger)ttl completion:(void (^)(NSError *))completion
+-(void)publishEventWithName:(NSString *)eventName
+                       data:(NSString *)data
+                  isPrivate:(BOOL)isPrivate
+                        ttl:(NSUInteger)ttl
+                 completion:(void (^)(NSError *))completion
 {
     NSMutableDictionary *params = [NSMutableDictionary new];
     NSString *authorization = [NSString stringWithFormat:@"Bearer %@",self.token.accessToken];
     [self.manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
     
-    params[@"name"]=eventName;
-    params[@"data"]=data;
-    if (isPrivate)
-        params[@"private"]=@"true";
-    else
-        params[@"private"]=@"false"; // TODO: check if needed
-    
+    params[@"name"] = eventName;
+    params[@"data"] = data;
+    params[@"private"] = isPrivate ? @"true" : @"false";
     params[@"ttl"] = [NSString stringWithFormat:@"%lu", (unsigned long)ttl];
     
     [self.manager POST:@"/v1/devices/events" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -819,11 +825,10 @@ NSString *const kEventListenersDictIDKey = @"id";
     } failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          if (completion)
+         {
              completion(error);
+         }
      }];
-    
-    
-    
 }
 
 @end
