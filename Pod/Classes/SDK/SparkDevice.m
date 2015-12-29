@@ -48,14 +48,22 @@
 {
     [coder encodeObject:self.id forKey:@"id"];
     [coder encodeObject:[NSNumber numberWithBool:self.connected] forKey:@"connected"];
+    
+    if (self.name)
+    {
+        [coder encodeObject:self.name forKey:@"name"];
+    }
+    
     if (self.functions)
     {
         [coder encodeObject:self.functions forKey:@"functions"];
     }
+    
     if (self.variables)
     {
         [coder encodeObject:self.variables forKey:@"variables"];
     }
+    
     if (self.type)
     {
         [coder encodeObject:[NSNumber numberWithInteger:self.type] forKey:@"type"];
