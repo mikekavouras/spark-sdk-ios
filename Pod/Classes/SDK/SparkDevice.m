@@ -39,9 +39,8 @@
     device.functions = [aDecoder decodeObjectForKey:@"functions"];
     device.variables = [aDecoder decodeObjectForKey:@"variables"];
     device.type = [[aDecoder decodeObjectForKey:@"type"] integerValue];
-
-    return self;
-
+    
+    return device;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder
