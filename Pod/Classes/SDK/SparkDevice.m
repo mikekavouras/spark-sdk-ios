@@ -33,42 +33,42 @@
 {
     NSString *id = [aDecoder decodeObjectForKey:@"id"];
     SparkDevice *device = [self initWithParams:@{@"id" : id}];
-    
+
     device.name = [aDecoder decodeObjectForKey:@"name"];
     device.connected = [[aDecoder decodeObjectForKey:@"connected"] boolValue];
     device.functions = [aDecoder decodeObjectForKey:@"functions"];
     device.variables = [aDecoder decodeObjectForKey:@"variables"];
-    device.type = [[aDecoder decodeObjectForKey:@"taype"] integerValue];
-    
+    device.type = [[aDecoder decodeObjectForKey:@"type"] integerValue];
+
     return self;
-    
+
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
     [coder encodeObject:self.id forKey:@"id"];
     [coder encodeObject:[NSNumber numberWithBool:self.connected] forKey:@"connected"];
-    
+
     if (self.name)
     {
         [coder encodeObject:self.name forKey:@"name"];
     }
-    
+
     if (self.functions)
     {
         [coder encodeObject:self.functions forKey:@"functions"];
     }
-    
+
     if (self.variables)
     {
         [coder encodeObject:self.variables forKey:@"variables"];
     }
-    
+
     if (self.type)
     {
         [coder encodeObject:[NSNumber numberWithInteger:self.type] forKey:@"type"];
     }
-    
+
 }
 
 -(instancetype)initWithParams:(NSDictionary *)params
@@ -201,11 +201,6 @@
             }
         }
     }];
-}
-
--(void)setName:(NSString *)name
-{
-    [self rename:name completion:nil];
 }
 
 -(NSURLSessionDataTask *)getVariable:(NSString *)variableName
