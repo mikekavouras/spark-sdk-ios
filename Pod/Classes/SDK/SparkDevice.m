@@ -19,7 +19,7 @@
 @property (strong, nonatomic) NSArray *functions;
 @property (strong, nonatomic) NSDictionary *variables;
 @property (strong, nonatomic) NSString *version;
-//@property (nonatomic) SparkDeviceType type;
+@property (nonatomic) SparkDeviceType type;
 @property (nonatomic) BOOL requiresUpdate;
 @property (nonatomic, strong) AFHTTPSessionManager *manager;
 @property (atomic) NSInteger flashingTimeLeft;
@@ -28,6 +28,40 @@
 @end
 
 @implementation SparkDevice
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    NSString *id = [aDecoder decodeObjectForKey:@"id"];
+    SparkDevice *device = [self initWithParams:@{@"id" : id}];
+    
+    device.name = [aDecoder decodeObjectForKey:@"name"];
+    device.connected = [[aDecoder decodeObjectForKey:@"connected"] boolValue];
+    device.functions = [aDecoder decodeObjectForKey:@"functions"];
+    device.variables = [aDecoder decodeObjectForKey:@"variables"];
+    device.type = [[aDecoder decodeObjectForKey:@"taype"] integerValue];
+    
+    return self;
+    
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:self.id forKey:@"id"];
+    [coder encodeObject:[NSNumber numberWithBool:self.connected] forKey:@"connected"];
+    if (self.functions)
+    {
+        [coder encodeObject:self.functions forKey:@"functions"];
+    }
+    if (self.variables)
+    {
+        [coder encodeObject:self.variables forKey:@"variables"];
+    }
+    if (self.type)
+    {
+        [coder encodeObject:[NSNumber numberWithInteger:self.type] forKey:@"type"];
+    }
+    
+}
 
 -(instancetype)initWithParams:(NSDictionary *)params
 {
