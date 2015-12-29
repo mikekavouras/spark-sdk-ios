@@ -40,8 +40,7 @@
     device.variables = [aDecoder decodeObjectForKey:@"variables"];
     device.type = [[aDecoder decodeObjectForKey:@"type"] integerValue];
     
-    return self;
-    
+    return device;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder
