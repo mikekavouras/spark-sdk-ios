@@ -26,7 +26,7 @@ typedef NS_ENUM(NSInteger, SparkDeviceType) {
     SparkDeviceTypeElectron=10,
 };
 
-@interface SparkDevice : NSObject
+@interface SparkDevice : NSObject <NSCoding>
 
 /**
  *  DeviceID string
