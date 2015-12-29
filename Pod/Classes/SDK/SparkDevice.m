@@ -38,7 +38,7 @@
     device.connected = [[aDecoder decodeObjectForKey:@"connected"] boolValue];
     device.functions = [aDecoder decodeObjectForKey:@"functions"];
     device.variables = [aDecoder decodeObjectForKey:@"variables"];
-    device.type = [[aDecoder decodeObjectForKey:@"taype"] integerValue];
+    device.type = [[aDecoder decodeObjectForKey:@"type"] integerValue];
     
     return self;
     
@@ -192,11 +192,6 @@
                 completion(error);
         }
     }];
-}
-
--(void)setName:(NSString *)name
-{
-    [self rename:name completion:nil];
 }
 
 -(void)getVariable:(NSString *)variableName completion:(void(^)(id result, NSError* error))completion
